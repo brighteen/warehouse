@@ -1,0 +1,5 @@
+# <코드 1> .gitignore 예시
+.env
+__pycache__/
+.ipynb_checkpoints/
+*.pyc

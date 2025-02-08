@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-3">
+    <h2 class="border-bottom py-2"> {{ board.title }} </h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="card-text" style="white-space: pre-line;">
+                {{ board.content }}
+                {% if board.image %}
+                    <img src="{{ board.image.url }}" width="300" height="300">
+                {% endif %}
+            </div>
+            <div class="d-flex justify-content-end">
+                <div class="badge badge-light p-2">
+                작성자 | {{ board.user }}
+                </div>
+                <div class="badge badge-light p-2">
+                {{ board.c_date | date:'Y-m-d H:i' }}
+                </div>
+            </div>
+            <div class="my-3">
+            <a class="delete btn btn-sm btn-outline-secondary " onclick="location.href='/board/update/{{ board.pk }}'">수정</a>
+            <a class="delete btn btn-sm btn-outline-secondary " onclick="location.href='/board/delete/{{ board.pk }}'">삭제</a>
+            </div>
+        </div>
+    </div>
+
+<!--댓글-->
+<h5 class="border-bottom my-3 py-2">{{ comment_view.count }}개의 댓글</h5>
+{% for comment in comment_view %}
+<div class="card my-3">
+<div class="card-body">
+<div class="card-text" style="white-space: pre-line;">{{ comment.comment }}</div>
+<div class="d-flex justify-content-end">
+<div class="badge badge-light p-2">
+작성자 | {{ comment.author }} <br>
+</div>
+<div class="badge badge-light p-2">
+{{ comment.w_date | date:'Y-m-d H:i' }}
+</div>
+</div>
+<div class="my-3">
+<a class="delete btn btn-sm btn-outline-secondary " onclick="location.href='/board/comment_delete/{{ comment.id }}'">삭제</a>
+</div>
+</div>
+</div>
+{% endfor %}
+<form action="{% url 'board:comment_create' board.id %}" method="post" class="my-3">
+{% csrf_token %}
+<div class="form-group">
+<textarea name="comment" id="content" class="form-control" rows="10" required_id = "id_comment"></textarea>
+</div>
+<input type="submit" value="댓글등록" class="btn btn-primary">
+</form>
+</div>
+{% endblock %}

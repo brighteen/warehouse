@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
+<div class="container my-3">
+<table class="table">
+<thead>
+<tr class="thead-dark">
+<th>번호</th>
+<th>제목</th>
+<th>작성자</th>
+<th>작성일시</th>
+</tr>
+</thead>
+
+<tbody>
+{% if board %}
+{% for board_list in board %}
+<tr>
+<td>{{ board_list.pk }}</td>
+<td><a href="/board/detail/{{ board_list.id }}">{{ board_list.title }}</a></td>
+<td>{{ board_list.user }}</td>
+<td>{{ board_list.c_date | date:'Y-m-d H:i' }}</td>
+</tr>
+{% endfor %}
+{% else %}
+<tr>
+<td colspan="3">등록된 게시글이 없습니다.</td>
+</tr>
+{% endif %}
+</tbody>
+</table>
+
+<button class="btn btn-secondary rounded-pill" onclick="location.href='/board/new'">글쓰기</button>
+</div>
+{% endblock %}
