@@ -1,32 +1,25 @@
 {% load static %}
+{% load custom_filters %}  <!-- ✅ 여기에 추가 -->
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
-    <title>Blog</title>
     
-    <style>
-        body {
-            background-image: url("/media/images/jju_background.png");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
+    <!-- ✅ CSS 추가 -->
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 
-        .main-content {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-        }
-    </style>
+    <title>전주대학교 챗봇</title>
 </head>
 
-<body class="bg-light">
+<body>
+    <div class="background-container">
+        <img src="{% media_url 'images/jju_background.png' %}" class="background-logo">
+    </div>
+
     {% include 'header.html' %}
 
     <div class="container-fluid">
         <div class="row">
-            <!-- 📌 사이드바 -->
             <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar border-end p-3">
                 <h5 class="border-bottom pb-2">게시판 목록</h5>
                 <ul class="nav flex-column">
@@ -45,8 +38,7 @@
                 <button class="btn btn-primary mt-3 w-100" onclick="location.href='/board/new'">글쓰기</button>
             </nav>
 
-            <!-- 📌 메인 컨텐츠 -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 board-content">
                 {% block content %}
                 {% endblock %}
             </main>

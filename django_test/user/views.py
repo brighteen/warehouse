@@ -48,5 +48,12 @@ def logout(request):
 
     return redirect('/')
 
+# def index(request):
+#     return render(request, 'index.html')
+
+from django.conf import settings
+
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html', {
+        'MEDIA_URL': settings.MEDIA_URL  # ✅ MEDIA_URL을 템플릿으로 넘김
+    })
