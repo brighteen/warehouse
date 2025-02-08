@@ -8,7 +8,9 @@ def board_list(request):
     board = Board.objects.all()
     context = {
     'boardForm': boardForm,
-    'board': board,
+    # 'board': board,
+    'board_list': board,
+    
     }
 
     return render(request, 'board/board_list.html', context)
@@ -34,14 +36,25 @@ def board_create(request):
     
     return render(request, 'board/board_create.html')
 
+# def board_detail(request, id):
+#     board = Board.objects.get(pk=id)
+
+#     comments = CommentForm()
+#     comment_view = Comment.objects.filter(post=Board.objects.get(pk=id))
+
+#     return render(request, 'board/board_detail.html',{'board':board, 'comments': comments,
+#                                                       'comment_view':comment_view})
+
 def board_detail(request, id):
-    board = Board.objects.get(pk=id)
+    board = get_object_or_404(Board, pk=id)  # 선택한 게시글 가져오기
+    board_list = Board.objects.all()  # 📌 모든 게시글 목록 가져오기
+    comments = Comment.objects.filter(board=board)  # 해당 게시글의 댓글 가져오기
 
-    comments = CommentForm()
-    comment_view = Comment.objects.filter(post=Board.objects.get(pk=id))
-
-    return render(request, 'board/board_detail.html',{'board':board, 'comments': comments,
-                                                      'comment_view':comment_view})
+    return render(request, 'board/board_detail.html', {
+        'board': board,  
+        'board_list': board_list,  # 📌 템플릿에서 사용될 전체 게시글 목록 추가
+        'comments': comments
+    })
 
 # def board_update(request, id):
 #     board = Board.objects.get(pk=id)

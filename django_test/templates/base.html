@@ -1,17 +1,55 @@
 {% load static %}
-
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<!-- 부트스트랩 적용-->
-<link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
-<title>Blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+    <title>Blog</title>
+    
+    <style>
+        body {
+            background-image: url("/media/images/jju_background.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
 </head>
-<body>
-<!--header.html 포함-->
-{% include 'header.html' %}
-{% block content %}
 
-{% endblock %}
+<body class="bg-light">
+    {% include 'header.html' %}
 
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 📌 사이드바 -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar border-end p-3">
+                <h5 class="border-bottom pb-2">게시판 목록</h5>
+                <ul class="nav flex-column">
+                    {% if board_list %}
+                        {% for board in board_list %}
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="{% url 'board:board_detail' board.pk %}">
+                                    {{ board.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="nav-item text-muted">등록된 게시글이 없습니다.</li>
+                    {% endif %}
+                </ul>
+                <button class="btn btn-primary mt-3 w-100" onclick="location.href='/board/new'">글쓰기</button>
+            </nav>
+
+            <!-- 📌 메인 컨텐츠 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
 </body>
