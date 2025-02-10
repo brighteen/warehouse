@@ -85,5 +85,5 @@ def main(file_path):
 
 # 이 파일이 직접 실행될 때 main() 함수를 호출함
 if __name__ == "__main__":
-  file_path = "data\Agentic Search-Enhanced.pdf"
+  file_path = "django_test\data\Don't Do RAG.pdf"
   main(file_path=file_path)

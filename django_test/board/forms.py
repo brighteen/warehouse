@@ -1,12 +1,8 @@
-from django.forms import ModelForm
-from .models import *
+# board/forms.py
+from django import forms
 
-class BoardForm(ModelForm):
-    class Meta:
-        model = Board
-        fields = ['title', 'content']
-
-class CommentForm(ModelForm):
-    class Meta:
-        model = Comment
-        fields = ['comment']
+class ChatForm(forms.Form):
+    question = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': '질문을 입력하세요...'}),
+        label=''
+    )

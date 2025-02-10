@@ -1,23 +1,24 @@
+<!-- templates/header.html -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-    <a class="navbar-brand d-flex align-items-center" href="/">
-        <img src="/media/images/jju_logo.jpeg" alt="전주대 로고" width="40" height="40" class="me-2">
-        <strong>전주대학교 챗봇</strong>
+    <a class="navbar-brand" href="/">
+        <img src="/media/images/jju_logo.jpeg" alt="로고" width="40" height="40" class="me-2">
+        <strong>챗봇 인터페이스</strong>
     </a>
-    <div class="collapse navbar-collapse flex-grow-0" id="navbarNav">
-        <ul class="navbar-nav">
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
-                <li class="nav-item ">
-                    <a class="nav-link" href="/board/">게시판</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'board:chat' %}">대화</a>
                 </li>
-                <li class="nav-item ">
+                <li class="nav-item">
                     <a class="nav-link" href="/logout/">로그아웃</a>
                 </li>
             {% else %}
-                <li class="nav-item ">
-                    <a class="nav-link" href="/signup">회원가입</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="/signup/">회원가입</a>
                 </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="/login">로그인</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="/login/">로그인</a>
                 </li>
             {% endif %}
         </ul>
