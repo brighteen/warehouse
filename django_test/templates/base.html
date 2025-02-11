@@ -3,40 +3,16 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-    <title>챗봇 인터페이스</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <title>챗봇 인터페이스</title>
 </head>
 <body>
-    {% include 'header.html' %}
-    <div class="container-fluid">
-        <div class="row">
-            <!-- 사이드바: 대화 기록 -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar p-3">
-                <h5>대화 기록</h5>
-                <ul class="nav flex-column">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <li class="nav-item">
-                                {% if message.is_user %}
-                                    <span class="text-primary">나: {{ message.message|truncatechars:30 }}</span>
-                                {% else %}
-                                    <span class="text-success">챗봇: {{ message.message|truncatechars:30 }}</span>
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                    {% else %}
-                        <li class="nav-item text-muted">대화 기록이 없습니다.</li>
-                    {% endif %}
-                </ul>
-            </nav>
-            <!-- 메인 영역: 대화창 -->
-            <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
-                {% block content %}{% endblock %}
-            </main>
-        </div>
-    </div>
+  {% include 'header.html' %}
+  <div class="container-fluid">
+      {% block content %}{% endblock %}
+  </div>
 </body>
 </html>

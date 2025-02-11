@@ -1,59 +1,46 @@
-from django.contrib import auth
-from django.contrib.auth.models import User
+# user/views.py
 from django.shortcuts import render, redirect
-
-def signup(request):
-    if request.method == 'POST':
-
-        # password와 password2 입력된 값이 같다면
-        if request.POST['password'] == request.POST['password2']:
-            # user 객체 생성
-            user = User.objects.create_user(
-                username=request.POST['username'],
-                password=request.POST['password'],
-                email=request.POST['email'])
-            # 로그인
-            auth.login(request, user)
-            return redirect('/')
-        
-    return render(request, 'user/signup.html')
-
-def login(request):
-    if request.method == 'POST':
-        # login.html에서 넘어온 username과 password를 변수에 저장
-        login_username = request.POST['username']
-        login_password = request.POST['password']
-        # 해당 username과 password와 일치하는 user 객체 찾기
-        user = auth.authenticate(request, username=login_username, password=login_password)
-
-        # 해당 user 객체가 존재한다면
-        if user is not None:
-            # 로그인
-            auth.login(request, user)
-            request.session['user'] = user.id
-            return redirect('/')
-        
-        # 존재하지 않는다면 else:
-        # else:
-        return render(request, 'user/login.html')
-            # return render(request, 'user/login.html', {'error': 'Invalid username or password'})
-        
-    else:
-        return render(request, 'user/login.html')
-    
-def logout(request):
-    auth.logout(request)
-    if request.session.get('user'):
-        del(request.session['user'])
-
-    return redirect('/')
-
-# def index(request):
-#     return render(request, 'index.html')
-
-from django.conf import settings
+from django.contrib.auth import login as auth_login, authenticate, logout as auth_logout
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib import messages
 
 def index(request):
-    return render(request, 'index.html', {
-        'MEDIA_URL': settings.MEDIA_URL  # ✅ MEDIA_URL을 템플릿으로 넘김
-    })
+    # 루트 페이지 요청 시 로그인 상태에 따라 분기
+    if request.user.is_authenticated:
+        return redirect('board:chat')
+    else:
+        return redirect('user:login')
+
+def login(request):
+    # 이미 로그인된 상태면 바로 대화창으로 이동
+    if request.user.is_authenticated:
+        return redirect('board:chat')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request=request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request, user)
+            return redirect('board:chat')
+        else:
+            messages.error(request, "로그인 정보가 올바르지 않습니다.")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'user/login.html', {'form': form})
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('board:chat')
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "회원가입이 완료되었습니다. 로그인 해주세요.")
+            return redirect('user:login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'user/signup.html', {'form': form})
+
+def logout(request):
+    auth_logout(request)
+    return redirect('user:login')

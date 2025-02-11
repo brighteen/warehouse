@@ -1,24 +1,180 @@
-<!-- templates/board/chat.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="chat-window">
-    <h2>챗봇 대화</h2>
-    <div class="chat-messages">
-        {% for message in messages %}
-            <div class="chat-message {% if message.is_user %}user-message{% else %}bot-message{% endif %}">
-                <p><strong>{% if message.is_user %}나{% else %}챗봇{% endif %}:</strong> {{ message.message }}</p>
-            </div>
-        {% empty %}
-            <p>아직 대화가 없습니다. 질문을 입력해보세요!</p>
-        {% endfor %}
-    </div>
-    <div class="chat-input mt-3">
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">전송</button>
-        </form>
-    </div>
+<div class="row">
+  <!-- 좌측 사이드바: 대화 기록 목록 (새 채팅 시작 버튼 포함) -->
+  <div class="col-md-3" id="sidebar" style="max-width:250px;">
+      <h4>대화 기록</h4>
+      <!-- 새 채팅 버튼 -->
+      <a href="{% url 'board:chat' %}" class="btn btn-success btn-block mb-3" id="new-chat-btn">새 채팅 시작</a>
+      <div id="conversation-list">
+      {% for conv in conversation_list %}
+          {% with rep=conv.messages.all|slice:":2" %}
+              <a href="{% url 'board:chat_detail' conv.id %}" class="btn btn-outline-primary btn-block mb-2">
+                  {% if rep.0 %}
+                      {{ rep.0.message|truncatechars:20 }}
+                  {% endif %}
+                  {% if rep.1 %}
+                      / {{ rep.1.message|truncatechars:20 }}
+                  {% endif %}
+              </a>
+          {% endwith %}
+      {% empty %}
+          <p>대화 기록이 없습니다.</p>
+      {% endfor %}
+      </div>
+      <!-- 사이드바 내 닫기 버튼 (작은 정사각형 버튼) -->
+      <button id="sidebar-close" class="btn btn-outline-secondary btn-sm mt-3" style="width:40px; height:40px;">
+          <i class="bi bi-x-lg"></i>
+      </button>
+  </div>
+  <!-- 우측 메인 영역: 선택한 대화의 채팅 메시지 -->
+  <div class="col-md-9" id="main-chat">
+      <div class="chat-window">
+          <div class="chat-messages" id="chat-messages">
+              {% if active_conversation %}
+                  {% for message in messages %}
+                      {% if message.is_user %}
+                          <div class="chat-message user-message">
+                              <p><strong>나:</strong> {{ message.message|linebreaks }}</p>
+                          </div>
+                      {% else %}
+                          <div class="chat-message bot-message">
+                              <p><strong>챗봇:</strong> {{ message.message|linebreaks }}</p>
+                          </div>
+                      {% endif %}
+                  {% endfor %}
+              {% else %}
+                  <p>대화를 시작하려면 왼쪽에서 새 채팅을 선택하세요.</p>
+              {% endif %}
+          </div>
+          <div class="chat-input mt-3">
+              <form id="chat-form">
+                  {% csrf_token %}
+                  {{ form.question }}
+                  <button type="submit" class="btn btn-primary mt-2" id="submit-btn">전송</button>
+              </form>
+          </div>
+      </div>
+  </div>
 </div>
+
+<!-- 사이드바 열기 버튼 (고정, 사이드바가 닫혔을 때 왼쪽 가장자리에 표시) -->
+<div id="sidebar-toggle" style="position: fixed; left: 0; top: 50%; z-index: 9999; display: none;">
+    <button class="btn btn-outline-secondary btn-sm" style="width:40px; height:40px;">
+        <i class="bi bi-list"></i>
+    </button>
+</div>
+
+<script>
+    // 조건문을 사용해 currentConversationId 설정
+    var currentConversationId = "";
+    {% if active_conversation %}
+        currentConversationId = '{{ active_conversation.id }}';
+    {% endif %}
+    console.log("Current Conversation ID:", currentConversationId);
+
+    // 사이드바 토글 기능
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarCloseBtn = document.getElementById('sidebar-close');
+
+    // 닫기 버튼 클릭 시: 사이드바 숨기고 고정 토글 버튼 보이기
+    sidebarCloseBtn.addEventListener('click', function(){
+        sidebar.style.display = 'none';
+        sidebarToggle.style.display = 'block';
+    });
+    // 고정 토글 버튼 클릭 시: 사이드바 보이고 고정 토글 버튼 숨기기
+    sidebarToggle.addEventListener('click', function(){
+        sidebar.style.display = 'block';
+        sidebarToggle.style.display = 'none';
+    });
+
+    // 텍스트 영역: Shift+Enter는 줄바꿈, Enter(단독)는 폼 제출
+    const textAreaElem = document.querySelector('#chat-form textarea, #chat-form input[type="text"]');
+    if (textAreaElem) {
+        textAreaElem.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('chat-form').dispatchEvent(new Event('submit', { bubbles: true }));
+            }
+            // Shift+Enter는 기본 줄바꿈 동작 유지
+        });
+    }
+
+    // 폼 제출 및 스트리밍 처리
+    document.getElementById('chat-form').addEventListener('submit', function(e){
+        e.preventDefault();
+        const form = e.target;
+        const textarea = form.querySelector('textarea');
+        const question = textarea.value;
+        if (!question.trim()) {
+            return;
+        }
+        const chatMessages = document.getElementById('chat-messages');
+        // 사용자 질문 추가 (즉시 표시)
+        const userMessageElem = document.createElement('div');
+        userMessageElem.className = 'chat-message user-message';
+        userMessageElem.innerHTML = `<p><strong>나:</strong> ${question.replace(/\n/g, '<br>')}</p>`;
+        chatMessages.appendChild(userMessageElem);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // 고유 ID 생성 (현재 시간 기반)
+        let uniqueId = Date.now();
+        // 새 답변 메시지 요소 (스트리밍 텍스트 + 스피너)
+        const answerMessageElem = document.createElement('div');
+        answerMessageElem.className = 'chat-message bot-message';
+        answerMessageElem.innerHTML = `<p><strong>챗봇:</strong> <span id="answer-text-${uniqueId}"></span>
+            <span id="spinner-${uniqueId}" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display: inline-block;">
+                <span class="visually-hidden">Loading...</span>
+            </span></p>`;
+        chatMessages.appendChild(answerMessageElem);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Prepare FormData for fetch
+        const formData = new FormData();
+        formData.append('question', question);
+        if (currentConversationId) {
+            formData.append('conversation_id', currentConversationId);
+        }
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // 스트리밍 응답 Fetch API 호출
+        fetch("{% url 'board:stream_answer' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        }).then(response => {
+            // 새 대화 생성 시 헤더에서 conversation ID 읽기
+            const convId = response.headers.get('X-Conversation-ID');
+            if (convId && !currentConversationId) {
+                currentConversationId = convId;
+            }
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            const answerTextElem = document.getElementById(`answer-text-${uniqueId}`);
+            function read() {
+                reader.read().then(({ done, value }) => {
+                    if (done) {
+                        document.getElementById(`spinner-${uniqueId}`).style.display = 'none';
+                        return;
+                    }
+                    const chunk = decoder.decode(value);
+                    answerTextElem.innerHTML += chunk;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    read();
+                });
+            }
+            read();
+        }).catch(error => {
+            console.error('Error during streaming:', error);
+            document.getElementById(`spinner-${uniqueId}`).style.display = 'none';
+        });
+
+        // Clear input field
+        textarea.value = '';
+    });
+</script>
 {% endblock %}
