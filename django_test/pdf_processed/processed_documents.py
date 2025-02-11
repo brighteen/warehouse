@@ -1,3 +1,4 @@
+'''
 # 필요한 라이브러리를 가져옴
 from langchain_upstage import UpstageDocumentParseLoader  # 문서를 읽어오는 도구임
 from datetime import datetime  # 현재 시간을 사용하기 위해 가져옴
@@ -85,5 +86,54 @@ def main(file_path):
 
 # 이 파일이 직접 실행될 때 main() 함수를 호출함
 if __name__ == "__main__":
-  file_path = "django_test\data\Don't Do RAG.pdf"
+  file_path = "pdf_processed/data/SPRI_AI_Brief_2023년12월호_F.pdf"
   main(file_path=file_path)
+  '''
+from langchain_upstage import UpstageDocumentParseLoader  # 문서를 읽어오는 도구임
+from datetime import datetime  # 현재 시간을 사용하기 위해 가져옴
+from dotenv import load_dotenv  # 환경 변수를 사용하기 위해 가져옴
+from typing import List  # 리스트 타입을 표시할 때 사용함
+from collections import namedtuple  # 이름 붙은 튜플(namedtuple)을 사용함
+import os  # 환경 변수를 사용하기 위해 가져옴
+
+load_dotenv()
+
+# Document라는 이름의 자료형을 만듦
+# 이 자료형은 문서의 정보(metadata)와 실제 내용(page_content)을 저장함
+Document = namedtuple("Document", ["metadata", "page_content"])
+
+def load_document(uploaded_file,
+                  split: str = "page",
+                  output_format: str = "html",
+                  ocr: str = "auto",
+                  coordinates: bool = False) -> List[Document]:
+    """
+    업로드된 파일(UploadedFile 객체)로부터 문서를 로드하여 Document 객체 리스트로 반환합니다.
+    업로드된 파일은 media/uploads/에 저장되어 있으므로, uploaded_file.path를 사용합니다.
+    
+    매개변수:
+      - uploaded_file: Django FileField로 업로드된 파일 객체
+      - split (str): 문서를 나누는 단위 ('none', 'page', 'element' 중 하나, 기본은 "page")
+      - output_format (str): 출력 형식 ("text", "html", "markdown" 중 하나, 기본은 "html")
+      - ocr (str): OCR 모드 (기본 "auto")
+      - coordinates (bool): 페이지 내 위치 정보를 포함할지 여부 (기본 False)
+    
+    반환값:
+      - Document 객체 리스트
+    """
+    file_path = uploaded_file.path
+
+    loader = UpstageDocumentParseLoader(file_path,
+                                        split=split,
+                                        output_format=output_format,
+                                        ocr=ocr,
+                                        coordinates=coordinates)
+    docs = loader.load()
+    return docs
+
+file_path = "pdf_processed/data/SPRI_AI_Brief_2023년12월호_F.pdf"
+
+# docs = load_document(file_path=file_path, split="element")
+
+# print(f"[디버그] 로드된 문서 개수: {len(docs)}")
+# print(f"[디버그] 첫 번째 문서 내용: {docs[0].page_content[:500] if docs else '문서가 없음'}")

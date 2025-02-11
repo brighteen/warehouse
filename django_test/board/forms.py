@@ -6,7 +6,8 @@ class ChatForm(forms.Form):
         widget=forms.Textarea(attrs={
             'rows': 1, 
             'placeholder': '질문을 입력하세요...',
-            'style': 'overflow:hidden;'
+            'style': 'overflow:hidden;',
+            # 'style': 'overflow:hidden; resize: vertical; width: 100%;'
         }),
         label=''
     )

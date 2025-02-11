@@ -5,17 +5,14 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib import messages
 
 def index(request):
-    # 루트 페이지 요청 시 로그인 상태에 따라 분기
     if request.user.is_authenticated:
         return redirect('board:chat')
     else:
         return redirect('user:login')
 
 def login(request):
-    # 이미 로그인된 상태면 바로 대화창으로 이동
     if request.user.is_authenticated:
         return redirect('board:chat')
-
     if request.method == 'POST':
         form = AuthenticationForm(request=request, data=request.POST)
         if form.is_valid():
@@ -44,3 +41,9 @@ def signup(request):
 def logout(request):
     auth_logout(request)
     return redirect('user:login')
+
+def admin_request_view(request):
+    if request.method == 'POST':
+        messages.success(request, "관리자 권한 요청이 제출되었습니다.")
+        return redirect('user:index')
+    return render(request, 'user/admin_request.html')
