@@ -131,7 +131,7 @@ def load_document(uploaded_file,
     docs = loader.load()
     return docs
 
-file_path = "pdf_processed/data/SPRI_AI_Brief_2023년12월호_F.pdf"
+# file_path = "pdf_processed/data/SPRI_AI_Brief_2023년12월호_F.pdf"
 
 # docs = load_document(file_path=file_path, split="element")
 
