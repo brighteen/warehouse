@@ -1,61 +1,95 @@
-from langchain_community.document_loaders import TextLoader
-from langchain_chroma import Chroma
-from langchain_upstage import UpstageEmbeddings
-from dotenv import load_dotenv
+# 필요한 라이브러리를 가져옴
+from langchain_upstage import UpstageDocumentParseLoader  # 문서를 읽어오는 도구임
+from datetime import datetime  # 현재 시간을 사용하기 위해 가져옴
+from dotenv import load_dotenv  # 환경 변수를 사용하기 위해 가져옴
+from typing import List  # 리스트 타입을 표시할 때 사용함
+from collections import namedtuple  # 이름 붙은 튜플(namedtuple)을 사용함
+import os  # 환경 변수를 사용하기 위해 가져옴
 
 load_dotenv()
 
-def create_vector_store(collection_name, db_path, passage_embeddings=UpstageEmbeddings(model="solar-embedding-1-large-passage")):
-    """
-    백터 스토어를 생성함.
-    매개변수:
-      - collection_name (str): 컬렉션 이름임.
-      - db_path (str): 로컬 데이터 저장 경로임.
-      - passage_embeddings (Callable): 텍스트를 임베딩하는 함수임.
-    반환값:
-      - 생성된 백터 스토어 객체.
-    """
-    # Chroma 객체를 생성함.
-    vector_store = Chroma(
-        collection_name=collection_name,  # 컬렉션 이름을 지정함.
-        embedding_function=passage_embeddings,  # 임베딩 함수를 지정함.
-        persist_directory=db_path,  # 데이터 저장 경로를 지정함.
-    )
-    # 생성된 백터 스토어 객체를 반환함.
-    return vector_store
+# Document라는 이름의 자료형을 만듦
+# 이 자료형은 문서의 정보(metadata)와 실제 내용(page_content)을 저장함
+Document = namedtuple("Document", ["metadata", "page_content"])
 
-def add_documents(vector_store, documents):
+def load_document(file_input,
+                  split: str = "page",
+                  output_format: str = "html",
+                  ocr: str = "auto",
+                  coordinates: bool = False) -> List[Document]:
     """
-    문서 DB에 새로운 문서를 추가함.
-    매개변수:
-      - vector_store (Chroma): 문서 저장소 객체임.
-      - documents (List[Document]): 추가할 문서들의 리스트임.
-    반환값:
-      - 문서가 추가된 vector_store 객체.
-    """
-    all_data = vector_store.get()  # vector_store에서 기존 문서 데이터를 가져옴.
-    # print(f"[디버그] 현재 저장된 문서 개수 : {len(all_data['ids'])}, 저장 할 문서 개수 : {len(documents)}")  # 현재 문서 개수와 추가할 문서 개수를 디버그로 출력함.
+    파일 경로에 있는 문서를 읽고, 문서 내용을 Document 자료형의 리스트로 만들어 줌
     
-    strat = len(all_data['ids']) + 1  # 시작 인덱스를 기존 문서 개수 + 1로 설정함.
-    end = len(documents) + len(all_data['ids']) + 1  # 끝 인덱스를 기존 문서 개수와 추가할 문서 개수를 합산 후 1 더하여 설정함.
-    uuids = [str(i) for i in range(strat, end)]  # 새 문서의 id 리스트를 숫자 문자열로 생성함.
-    # print(f"[디버그] uuids : {uuids}")  # 생성된 uuids를 디버그로 출력함.
-    
-    vector_store.add_documents(documents=documents, ids=uuids)  # vector_store에 새 문서와 id 리스트를 추가함.
-
-    return vector_store  # 변경된 vector_store 객체를 반환함.
-
-def select_docs(db, query):
-    """
-    데이터베이스에서 쿼리에 대한 문서를 선택함.
     매개변수:
-      - db (Chroma): 문서 저장소 객체임.
-      - query (str): 쿼리 문장임.
+      - file_path (str): 읽어올 문서 파일의 경로임
+      - split (str): 문서를 나누는 단위임 (기본값은 한 페이지씩("page")임. 'none', 'page', 'element' 중 하나임)
+      - output_format (str): 출력 형식임 (기본값은 "html"임. 'text', 'html', 'markdown' 중 하나임)
+      - ocr (str): OCR(이미지에서 글자 읽기) 모드임 (기본값은 "auto"임)
+      - coordinates (bool): 페이지 내 위치 정보를 포함할지 여부임 (기본값은 True임)
+    
     반환값:
-      - 선택된 문서들의 리스트.
+      - Document 객체들이 들어있는 리스트를 반환함
     """
-    # 쿼리를 사용하여 문서를 선택함.
-    print(f"[디버그] db : {db}")
-    retriever = db.as_retriever()
-    selected_docs = retriever.invoke(query)
-    return selected_docs  # 선택된 문서들의 리스트를 반환함.
+    # file_input이 문자열이면 그대로 파일 경로로 사용, 그렇지 않으면 .file.path 사용
+    if isinstance(file_input, str):
+        actual_file_path = file_input
+    else:
+        actual_file_path = file_input.file.path
+
+    loader = UpstageDocumentParseLoader(actual_file_path,
+                                          split=split,
+                                          output_format=output_format,
+                                          ocr=ocr,
+                                          coordinates=coordinates)
+    docs = loader.load()
+    return docs
+
+def filter_tegs(documents: List[Document]) -> List[Document]:
+    """
+    문서 리스트에서 머리글(header)이나 꼬리글(footer)이 아닌 것들만 골라서 돌려줌
+    
+    매개변수:
+      - documents (List[Document]): 문서들이 들어있는 리스트임
+    
+    반환값:
+      - 머리글(header)이나 꼬리글(footer)이 아닌 문서들이 들어있는 리스트임
+    """
+    filtered_documents = [
+        doc for doc in documents 
+        if doc.metadata.get('category') not in ('header', 'footer')
+    ]
+    return filtered_documents
+
+def main(file_path):
+    """
+    프로그램의 시작 부분임
+    
+    1. 파일 경로에 있는 문서를 읽어옴
+    2. 전체 문서 개수를 출력함
+    3. 머리글(header)과 꼬리글(footer)을 제외한 문서를 골라냄
+    4. 필터링된 문서 개수를 출력함
+    5. 예시로 첫 번째 문서의 내용을 출력함
+    """
+    # load_document 함수를 사용하여 파일을 읽어옴
+    documents = load_document(file_path, split="element")
+    
+    # 전체 읽어온 문서가 몇 개인지 출력함
+    print(f"전체 문서 개수: {len(documents)}")
+    
+    # filter_non_headers 함수를 사용해서 머리글과 꼬리글이 아닌 문서를 골라냄
+    filtered_documents = filter_tegs(documents)
+    
+    # 필터링된 문서가 몇 개인지 출력함
+    print(f"헤더/푸터 제외 후 문서 개수: {len(filtered_documents)}")
+    
+    # 예시: 필터링된 문서가 있다면 첫 번째 문서의 내용을 출력함
+    if filtered_documents:
+        return filtered_documents
+    else:
+        print("필터링된 문서가 없음")
+        return None
+
+# 이 파일이 직접 실행될 때 main() 함수를 호출함
+# if __name__ == "__main__":
+#   file_path = "data\Agentic Search-Enhanced.pdf"
+#   main(file_path=file_path)
