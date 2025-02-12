@@ -1,0 +1,9 @@
+{
+    "name": "Django Codespace",
+    "image": "mcr.microsoft.com/vscode/devcontainers/python:3.9",
+    "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt",
+    "settings": {
+      "python.pythonPath": "/usr/local/bin/python"
+    }
+  }
+  

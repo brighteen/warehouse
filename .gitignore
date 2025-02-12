@@ -1,0 +1,8 @@
+__pycache__/
+
+db.sqlite3
+
+.env
+.venv
+pdf_processed\test.ipynb
+__pycache__
