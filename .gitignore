@@ -4,5 +4,6 @@ db.sqlite3
 
 .env
 .venv
-pdf_processed\test.ipynb
 __pycache__
+
+pdf/chroma_langchain_db
