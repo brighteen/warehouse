@@ -10,7 +10,7 @@ model_paths = [
     "yolov8x.pt",  # extra large
 ]
 
-image_path = "test4.jpg"  # 추론할 이미지 경로
+image_path = "test.jpeg"  # 추론할 이미지 경로
 results_dict = {}         # 모델별 결과 저장용
 
 for mp in model_paths:
