@@ -18,7 +18,7 @@ for mp in model_paths:
     model = YOLO(mp)
 
     # 모델 추론
-    result = model.predict(image_path, save=True, conf=0.3)  # 필요하면 save=True 등 옵션 추가
+    result = model.predict(image_path, save=True, conf=0.3, project="detect", name="pridict")  # 필요하면 save=True 등 옵션 추가
 
     # 첫 번째(유일한) 결과 객체를 꺼냄
     res = result[0]
