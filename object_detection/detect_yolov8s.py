@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 
-model = YOLO("yolov8s.pt") # 원하는 크기 모델 입력(n ~ x)
+model = YOLO("yolov7s.pt") # 원하는 크기 모델 입력(n ~ x)
 
 # result = model.predict("./test4.jpg", save=False, conf=0.5) # conf=0.5 : 신뢰도가 0.5 이상인 것만 출력
 result = model.predict("test4.jpg")

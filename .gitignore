@@ -13,3 +13,4 @@ object_detection/yolov8s.pt
 object_detection/yolov8m.pt
 object_detection/yolov8l.pt
 object_detection/yolov8x.pt
+object_detection/yolov5s.pt
