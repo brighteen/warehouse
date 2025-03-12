@@ -14,3 +14,6 @@ object_detection/yolov8m.pt
 object_detection/yolov8l.pt
 object_detection/yolov8x.pt
 object_detection/yolov5s.pt
+
+object_detection/runs/detect/train2/weights/best.pt
+object_detection/runs/detect/train2/weights/last.pt
