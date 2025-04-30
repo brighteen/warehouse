@@ -8,7 +8,7 @@ uploaded_file = st.file_uploader("엑셀 파일 업로드", type=["xlsx"])
 
 if st.button("📊 리포트 생성하기") and uploaded_file:
     # 파일 저장
-    input_path = f"data/{year}_uploaded.xlsx"
+    input_path = f"datas/{year}_uploaded.xlsx"
     with open(input_path, "wb") as f:
         f.write(uploaded_file.read())
 
