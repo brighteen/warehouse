@@ -1,6 +1,14 @@
 import streamlit as st
 from dropout_analysis import run_analysis
 
+import streamlit as st
+from dropout_analysis import run_analysis
+import os
+
+# 🔧 폴더가 없으면 생성
+os.makedirs("datas", exist_ok=True)
+os.makedirs("results", exist_ok=True)
+
 st.title("🎓 중도탈락 분석 리포트 생성기")
 
 year = st.selectbox("분석할 연도를 선택하세요:", [2021, 2022, 2023])
