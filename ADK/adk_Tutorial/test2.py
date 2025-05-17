@@ -6,21 +6,17 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
 import litellm  # litellm 직접 임포트
-from dotenv import load_dotenv  # python-dotenv 임포트
 
 from get_weather import get_weather
 from call_agent_async import call_agent_async
+
+from dotenv import load_dotenv  # python-dotenv 임포트
 
 # .env 파일 로드
 load_dotenv()
 
 # API 키 설정 - .env 파일에서 가져옴
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY가 .env 파일에 설정되어 있지 않습니다.")
-
-os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
-os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "False"  # Vertex AI 사용하지 않음 (test2.py와 동일하게)
 
 # LiteLLM 설정 - API 키 직접 설정
 litellm.api_key = GOOGLE_API_KEY
@@ -31,8 +27,12 @@ MODEL_GEMINI_FLASH_EXP = "gemini-2.0-flash-exp"  # 두 번째 모델
 
 # 메인 함수
 async def main():
+    # 세션 서비스 설정
+    session_service = InMemorySessionService()
     
-    # --- LiteLlm을 사용한 Gemini Flash 에이전트 (첫 번째 모델) ---
+    # 상호작용 컨텍스트 식별 상수
+    APP_NAME = "weather_tutorial_app_litellm"
+    USER_ID = "user_1"    # --- LiteLlm을 사용한 Gemini Flash 에이전트 (첫 번째 모델) ---
     flash_agent = Agent(
         name="weather_agent_gemini_flash",
         # LiteLlm을 사용하여 Gemini Flash 모델 연결
@@ -49,18 +49,12 @@ async def main():
     )
     print(f"Agent '{flash_agent.name}' created using Gemini 2.0 Flash via LiteLlm.")
     
-    # 세션 서비스 설정
-    session_service = InMemorySessionService()
-    
-    # 상호작용 컨텍스트 식별 상수
-    APP_NAME = "weather_tutorial_app_litellm"
-    USER_ID = "user_1"
-    SESSION_ID_GEMINI1 = "session_flash_001"
-
+    # Flash 에이전트 세션
+    flash_session_id = "session_flash_001"
     session = session_service.create_session(
         app_name=APP_NAME,
         user_id=USER_ID,
-        session_id=SESSION_ID_GEMINI1
+        session_id=flash_session_id
     )
     
     # Flash 에이전트 러너
@@ -68,18 +62,8 @@ async def main():
         agent=flash_agent,
         app_name=APP_NAME,
         session_service=session_service
-    )  
-      
-    # --- Flash 에이전트 테스트 ---
-    print("\n=== Testing Gemini 2.0 Flash Agent via LiteLlm ===")
-    await call_agent_async(
-        query="Weather in London please.",
-        runner=flash_runner,
-        user_id=USER_ID,
-        session_id=SESSION_ID_GEMINI1
-    )
-    # -------------------------------------------------------
-
+    )    
+    
     # --- LiteLlm을 사용한 Gemini Flash Exp 에이전트 (두 번째 모델) ---
     flash_exp_agent = Agent(
         name="weather_agent_gemini_flash_exp",
@@ -110,6 +94,15 @@ async def main():
         agent=flash_exp_agent,
         app_name=APP_NAME,
         session_service=session_service
+    )
+    
+    # --- Flash 에이전트 테스트 ---
+    print("\n=== Testing Gemini 2.0 Flash Agent via LiteLlm ===")
+    await call_agent_async(
+        query="Weather in London please.",
+        runner=flash_runner,
+        user_id=USER_ID,
+        session_id=flash_session_id
     )
     
     # --- Flash Exp 에이전트 테스트 ---
