@@ -16,11 +16,6 @@ load_dotenv()
 
 # API 키 설정 - .env 파일에서 가져옴
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY가 .env 파일에 설정되어 있지 않습니다.")
-
-os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
-os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "False"  # Vertex AI 사용하지 않음 (test2.py와 동일하게)
 
 # LiteLLM 설정 - API 키 직접 설정
 litellm.api_key = GOOGLE_API_KEY
@@ -31,7 +26,6 @@ MODEL_GEMINI_FLASH_EXP = "gemini-2.0-flash-exp"  # 두 번째 모델
 
 # 메인 함수
 async def main():
-    
     # --- LiteLlm을 사용한 Gemini Flash 에이전트 (첫 번째 모델) ---
     flash_agent = Agent(
         name="weather_agent_gemini_flash",
