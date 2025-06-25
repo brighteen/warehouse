@@ -91,11 +91,93 @@ def vector_transpose():
     print(f"v: {v}, type: {type(v)}, shape: {np.shape(v)}")
     # 전치 연산
     v_transpose = v.T
-    print(f"v_transpose: {v_transpose}, type: {type(v_transpose)}, shape: {np.shape(v_transpose)}")
+    print(f"\nv_transpose: {v_transpose}, type: {type(v_transpose)}, shape: {np.shape(v_transpose)}")
     # 두번 전치
     v_transpose_twice = v_transpose.T
-    print(f"v_transpose_twice: {v_transpose_twice}, type: {type(v_transpose_twice)}, shape: {np.shape(v_transpose_twice)}")
+    print(f"\nv_transpose_twice: {v_transpose_twice}, type: {type(v_transpose_twice)}, shape: {np.shape(v_transpose_twice)}")
     pass
+
+def vector_distance():
+    """
+    벡터의 크기 계산
+    """
+    v = np.array([1,2,3,7,8,9])
+    print(f"v: {v}, type: {type(v)}, shape: {np.shape(v)}, 길이: {len(v)}")
+    v_length = np.linalg.norm(v)  # 벡터의 크기
+    print(f"v_length: {v_length}")
+
+def my_calculate_distance(v):
+    """
+    넘파이를 사용하지 않고 벡터의 크기를 계산하는 함수
+    """
+    v_length = 0
+    for i in v:
+        v_length += i ** 2 # 제곱합
+    v_length = v_length ** 0.5 # 루트 취하기
+    return v_length
+
+def unit_vector_calc():
+    """
+    단위 벡터 계산
+    """
+    v = [1, 2, 3]
+    print(f"원본 벡터 v: {v}")
+    
+    v_length = my_calculate_distance(v)  # 벡터의 크기
+    print(f"벡터의 크기: {v_length}")
+    
+    # 단위 벡터 계산 (각 성분을 벡터의 크기로 나누기)
+    unit_vector = [component / v_length for component in v]
+    print(f"단위 벡터: {unit_vector}")
+    
+    # 단위벡터의 크기 확인
+    unit_vector_length = my_calculate_distance(unit_vector)
+    print(f"단위 벡터의 크기: {unit_vector_length}")
+    
+    return unit_vector
+
+def vector_product():
+    """
+    벡터의 내적 계산
+    """
+    s = -1
+    v = np.array([1, 2, 3, 4])
+    w = np.array([5,6,7,8])
+    print(f"v: {v}, w: {w}")
+    v = v * s
+    print(f"v: {v}, w: {w}")
+    dot_product = np.dot(v, w)  # 벡터의 내적
+    print(f"v . w (dot product): {dot_product}")
+
+def vector_분배법칙():
+    """
+    벡터의 분배법칙
+    """
+    v = np.array([ 0,1,2 ])
+    w = np.array([ 3,5,8 ])
+    u = np.array([ 13,21,34 ])
+    res1 = np.dot( v, w+u )
+    res2 = np.dot( v,w ) + np.dot( v,u )
+    print(f"v: {v}, w: {w}, u: {u}")
+    print(f"v . (w + u): {res1}, v . w + v . u: {res2}")
+    pass
+
+def vector_similirarity():
+    """
+    벡터의 유사도 계산
+    """
+    v = np.array([0,1,2])
+    w = np.array([3,5,8])
+    print(f"v: {v}, w: {w}")
+
+    dot_product = np.dot(v, w)  # 내적
+    print(f"v . w (dot product): {dot_product}")
+    v_length = np.linalg.norm(v)  # 벡터 v의 크기
+    w_length = np.linalg.norm(w)  # 벡터 w의 크기
+    print(f"v_length: {v_length}, w_length: {w_length}")
+
+    similarity = dot_product / (v_length * w_length)  # 코사인 유사도
+    print(f"코사인 유사도: {similarity}")
 
 if __name__ == "__main__":
     import numpy as np
@@ -105,4 +187,10 @@ if __name__ == "__main__":
     # vector_calc2()
     # vector_visualization()
     # scalar_product()
-    vector_transpose()
+    # vector_transpose()
+    # vector_distance()
+    # my_calculate_distance()
+    # unit_vector_calc()
+    # vector_product()
+    # vector_분배법칙()
+    vector_similirarity()
