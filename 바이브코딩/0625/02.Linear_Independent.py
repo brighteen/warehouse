@@ -1,18 +1,3 @@
-def linear_combination():
-    """
-    선형 결합
-    """
-    s1 = 1
-    s2 = 2
-    s3 = -3
-    v1 = [4,5,1]
-    v2 = [-4, 0, -4]
-    v3 = [1,3,2]
-
-    
-
-    pass
-
 def check_linear_independence_T():
     """
     벡터 집합 T의 선형 독립성 판별
@@ -110,8 +95,6 @@ def find_linear_combination_coefficients():
 
 if __name__ == "__main__":
     import numpy as np
-    # linear_combination()
-    
     # 벡터 집합 T의 선형 독립성 판별
     print("=== 벡터 집합 T의 선형 독립성 판별 ===")
     is_independent = check_linear_independence_T()
@@ -122,5 +105,3 @@ if __name__ == "__main__":
     if not is_independent:
         print("\n=== 선형 결합 계수 찾기 ===")
         coefficients = find_linear_combination_coefficients()
-    
-    # linear_combination()
