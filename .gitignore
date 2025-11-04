@@ -15,4 +15,6 @@ object_detection/yolov5s.pt
 object_detection/runs/detect/train2/weights/best.pt
 object_detection/runs/detect/train2/weights/last.pt
 
-3-2/개인프로젝트(고교수님)/.ipynb_checkpoints
+3-2/segmentation in chest X-ray/.ipynb_checkpoints
+
+data
