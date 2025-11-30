@@ -1,20 +1,13 @@
 __pycache__/
 
-
 .env
 .venv
 __pycache__
 
-object_detection/yolov8n.pt
-object_detection/yolov8s.pt
-object_detection/yolov8m.pt
-object_detection/yolov8l.pt
-object_detection/yolov8x.pt
-object_detection/yolov5s.pt
-
-object_detection/runs/detect/train2/weights/best.pt
-object_detection/runs/detect/train2/weights/last.pt
 
 3-2/segmentation in chest X-ray/.ipynb_checkpoints
 
 data
+
+3-1/개인프로젝트-객체탐지/runs/detect/train2/weights
+3-1/개인프로젝트-객체탐지/models
